@@ -1,0 +1,14 @@
+name: chip8
+version: 0.1.0
+
+authors:
+  - Brett Heinkel <bheinks@gmail.com>
+
+description: An implementation of the CHIP-8 architecture in Crystal
+
+dependencies:
+  crsfml:
+    github: oprypin/crsfml
+    version: ~> 2.5.2
+
+license: MIT
