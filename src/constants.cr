@@ -4,9 +4,15 @@ alias Word = UInt16
 MEMORY_SIZE = 4096
 
 # Audio
-INT16_MAX = ((2 ** 16) / 2) - 1
+INT16_MAX = (((2 ** 16) / 2) - 1).to_i16
 SAMPLE_RATE = 44100
 CHANNEL_COUNT = 1
+
+enum Waveform
+    Sine
+    Sawtooth
+    Square
+end
 
 module Note
     C = 261.6

@@ -10,7 +10,7 @@ class Chip8
     def initialize
         @memory = Memory.new
         @cpu = Cpu.new @memory
-        @stream = Sound::Stream.new CHANNEL_COUNT, SAMPLE_RATE, Note::A
+        @stream = Sound::Stream.new CHANNEL_COUNT, SAMPLE_RATE, Waveform::Sine, Note::A
         
         # Set up window
         @window = Window.new SF::VideoMode.new(800, 600), "CHIP-8"
@@ -33,7 +33,16 @@ class Chip8
     private def event_loop
         while @window.open?
             # Process GUI events
-            @window.process_events
+            #@window.process_events
+            while event = @window.poll_event
+                case event
+                when SF::Event::Closed
+                    @window.close
+                when SF::Event::KeyPressed
+                    # TODO: user input
+                end
+            end
+            @window.display
 
             # Update sound timer
             if @cpu.sound_timer > 0
