@@ -10,5 +10,7 @@ dependencies:
   crsfml:
     github: oprypin/crsfml
     version: ~> 2.5.2
+  bitfield:
+    github: mattrberry/bitfield
 
 license: MIT

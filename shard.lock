@@ -1,5 +1,9 @@
 version: 2.0
 shards:
+  bitfield:
+    git: https://github.com/mattrberry/bitfield.git
+    version: 0.2.0
+
   crsfml:
     git: https://github.com/oprypin/crsfml.git
     version: 2.5.2

@@ -1,17 +1,47 @@
-require "./constants"
+require "crsfml/system"
 
-class Memory
-    getter data : Array(Byte)
-
-    def initialize
-        @data = Array(Byte).new MEMORY_SIZE, 0_u8
+class Memory(T)
+    def initialize(*args, **kwargs)
+        @data = Array(T).new *args, **kwargs
+        @mutex = SF::Mutex.new
     end
 
-    def [](address) : Byte
-        @data[address]
+    def [](address) : T
+        @mutex.lock
+        value = @data[address]
+        @mutex.unlock
+        return value
     end
 
-    def []=(address, value : Byte)
+    def []=(address, value : T)
+        @mutex.lock
         @data[address] = value
+        @mutex.unlock
+    end
+
+    def size
+        @data.size
+    end
+end
+
+class VideoMemory < Memory(Bool)
+    def initialize(width : Int32, height : Int32)
+        super width * height, false
+        @width = width
+        @height = height
+    end
+
+    def set(x, y, value : Bool)
+        self[@width * y + x] = value
+    end
+
+    def get(x, y) : Bool
+        self[@width * y + x]
+    end
+
+    def clear
+        @mutex.lock
+        @data.map! { |_| false }
+        @mutex.unlock
     end
 end

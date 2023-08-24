@@ -2,3 +2,4 @@
 .VSCodeCounter
 .DS_Store
 lib
+*.ch8

@@ -1,4 +1,5 @@
 require "./chip8"
 
-emu = Chip8.new
+rom = File.read "IBM Logo.ch8"
+emu = Chip8.new rom
 emu.start
