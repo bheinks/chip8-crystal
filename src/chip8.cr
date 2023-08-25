@@ -4,10 +4,9 @@ require "./constants"
 require "./cpu"
 require "./memory"
 require "./sound"
-require "./window"
 
 class Chip8
-    def initialize(rom : String)
+    def initialize(scale : Int, delay : Float, rom : String)
         @memory = Memory(Byte).new MEMORY_SIZE, 0_u8
         @video_memory = VideoMemory.new DISPLAY_WIDTH, DISPLAY_HEIGHT
         @cpu = Cpu.new @memory, @video_memory
@@ -16,9 +15,6 @@ class Chip8
         # Set up window
         @window = SF::RenderWindow.new SF::VideoMode.new(DISPLAY_WIDTH * DISPLAY_SCALE, DISPLAY_HEIGHT * DISPLAY_SCALE), "CHIP-8"
         @window.framerate_limit = FRAMERATE
-
-        # Threading
-        @cpu_thread = SF::Thread.new(->cpu_loop)
 
         # Initialize font
         FONT.each_with_index do |c, i|
@@ -34,18 +30,8 @@ class Chip8
     end
 
     def start
-        @cpu_thread.launch
-        event_loop
-    end
-
-    private def cpu_loop
-        @cpu.process_events
-    end
-
-    private def event_loop
         while @window.open?
             # Process GUI events
-            #@window.process_events
             while event = @window.poll_event
                 case event
                 when SF::Event::Closed
@@ -86,6 +72,13 @@ class Chip8
                 @stream.stop
             end
         end
+    end
+
+    private def cpu_loop
+        @cpu.process_events
+    end
+
+    private def event_loop
     end
 
     private def draw_sprites

@@ -1,3 +1,6 @@
+NAME = "crystal8"
+VERSION = "0.1.0"
+
 alias Byte = UInt8
 alias Word = UInt16
 
