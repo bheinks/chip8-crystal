@@ -13,7 +13,7 @@ class Chip8
         @stream = Sound::Stream.new CHANNEL_COUNT, SAMPLE_RATE, Waveform::Sine, Note::A
         
         # Set up window
-        @window = SF::RenderWindow.new SF::VideoMode.new(DISPLAY_WIDTH * DISPLAY_SCALE, DISPLAY_HEIGHT * DISPLAY_SCALE), "CHIP-8"
+        @window = SF::RenderWindow.new SF::VideoMode.new(DISPLAY_WIDTH * scale, DISPLAY_HEIGHT * scale), "CHIP-8"
         @window.framerate_limit = FRAMERATE
 
         # Initialize font
