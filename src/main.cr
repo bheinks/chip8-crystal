@@ -3,12 +3,32 @@ require "option_parser"
 require "./chip8"
 require "./constants"
 
-scale = 0
-delay = 0.0
-rom = ""
+scale = 1
+delay = 3.0
+file = ""
 
 parser = OptionParser.parse do |parser|
-    parser.banner = "Usage: #{NAME} <scale> <delay> <rom>"
+    parser.banner = "Usage: #{NAME} [-s <scale>] [-d <delay>] <file>"
+
+    parser.on "file", "ROM file" {}
+
+    parser.on "-s scale", "--scale=scale", "Window scale" do |_scale| 
+        begin
+            scale = _scale.to_i
+        rescue ArgumentError
+            puts parser
+            exit
+        end
+    end
+
+    parser.on "-d delay", "--delay=delay", "Instruction delay" do |_delay|
+        begin
+            delay = _delay.to_f
+        rescue ArgumentError
+            puts parser
+            exit
+        end
+    end
 
     parser.on "-v", "--version", "Show version" do
         puts "#{NAME} #{VERSION}"
@@ -20,15 +40,27 @@ parser = OptionParser.parse do |parser|
         exit
     end
 
-    parser.on "scale", "Window scale" { |_scale| scale = _scale.to_i }
-    parser.on "delay", "Instruction delay" { |_delay| delay = _delay.to_f }
-    parser.on "rom", "ROM file" { |_rom| rom = _rom }
+    parser.missing_option do |_|
+        puts parser
+        exit
+    end
+
+    parser.invalid_option do |_|
+        puts parser
+        exit
+    end
 end
 
-if !scale || !delay || rom.empty?
+file = ARGV.pop?
+if file.nil? || file.empty?
     puts parser
     exit
 end
 
-emu = Chip8.new scale, delay, File.read rom
+if !File.exists?(file)
+    puts "File not found: #{file}"
+    exit
+end
+
+emu = Chip8.new scale, delay, File.read file
 emu.start

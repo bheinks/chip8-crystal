@@ -6,7 +6,6 @@ alias Word = UInt16
 
 ROM_ADDRESS = 0x200
 MEMORY_SIZE = 4096
-INSTRUCTION_DELAY = 0.1#1 / 820
 
 # Audio
 INT16_MAX = (((2 ** 16) / 2) - 1).to_i16
@@ -37,7 +36,6 @@ end
 # Display
 DISPLAY_WIDTH = 64
 DISPLAY_HEIGHT = 32
-DISPLAY_SCALE = 30 # TODO: dyamically scale with resolution
 FRAMERATE = 60
 FONT_ADDRESS = 0x050_u8
 FONT = [
