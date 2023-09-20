@@ -1,20 +1,21 @@
 require "crsfml"
+require "crsfml/system"
 
 require "./constants"
 require "./cpu"
-require "./memory"
 require "./sound"
 
 class Chip8
-    def initialize(scale : Int, delay : Float, rom : String)
-        @memory = Memory(Byte).new MEMORY_SIZE, 0_u8
-        @video_memory = VideoMemory.new DISPLAY_WIDTH, DISPLAY_HEIGHT
-        @cpu = Cpu.new @memory, @video_memory
+    def initialize(scale : Int32, delay : Float64, rom : String)
+        @scale = scale
+        @delay = delay.milliseconds
+        @memory = Array(Byte).new MEMORY_SIZE, 0_u8
+        @video_memory = Array(Array(Bool)).new(DISPLAY_HEIGHT) { Array.new DISPLAY_WIDTH, false }
+        @keymap = Array(Bool).new 16, false
+        @cpu = Cpu.new @memory, @video_memory, @keymap
         @stream = Sound::Stream.new CHANNEL_COUNT, SAMPLE_RATE, Waveform::Sine, Note::A
-        
-        # Set up window
-        @window = SF::RenderWindow.new SF::VideoMode.new(DISPLAY_WIDTH * scale, DISPLAY_HEIGHT * scale), "CHIP-8"
-        @window.framerate_limit = FRAMERATE
+        @window = SF::RenderWindow.new SF::VideoMode.new(DISPLAY_WIDTH * @scale, DISPLAY_HEIGHT * @scale), NAME
+        @window.framerate_limit = 700
 
         # Initialize font
         FONT.each_with_index do |c, i|
@@ -31,33 +32,11 @@ class Chip8
 
     def start
         while @window.open?
-            # Process GUI events
-            while event = @window.poll_event
-                case event
-                when SF::Event::Closed
-                    @window.close
-                when SF::Event::KeyReleased
-                    case event.code
-                    when .num1?
-                    when .num2?
-                    when .num3?
-                    when .num4?
-                    when .q?
-                    when .w?
-                    when .e?
-                    when .r?
-                    when .a?
-                    when .s?
-                    when .d?
-                    when .f?
-                    when .z?
-                    when .x?
-                    when .c?
-                    when .v?
-                    end
-                end
-            end
-
+            process_events
+            @cpu.cycle
+            clear_keymap
+            
+            # Update window
             @window.clear SF::Color::Black
             draw_sprites
             @window.display
@@ -71,22 +50,72 @@ class Chip8
             else
                 @stream.stop
             end
+
+            # Update delay timer
+            if @cpu.delay_timer > 0
+                @cpu.delay_timer -= 1
+            end
         end
     end
 
-    private def cpu_loop
-        @cpu.process_events
+    private def process_events
+        while event = @window.poll_event
+            case event
+            when SF::Event::Closed
+                @window.close
+            when SF::Event::KeyPressed
+                case event.code
+                when .num1?
+                    key_pressed(0)
+                when .num2?
+                    key_pressed(0x1)
+                when .num3?
+                    key_pressed(0x2)
+                when .num4?
+                    key_pressed(0x3)
+                when .q?
+                    key_pressed(0x4)
+                when .w?
+                    key_pressed(0x5)
+                when .e?
+                    key_pressed(0x6)
+                when .r?
+                    key_pressed(0x7)
+                when .a?
+                    key_pressed(0x8)
+                when .s?
+                    key_pressed(0x9)
+                when .d?
+                    key_pressed(0xA)
+                when .f?
+                    key_pressed(0xB)
+                when .z?
+                    key_pressed(0xC)
+                when .x?
+                    key_pressed(0xD)
+                when .c?
+                    key_pressed(0xE)
+                when .v?
+                    key_pressed(0xF)
+                end
+            end
+        end
     end
 
-    private def event_loop
+    private def key_pressed(keycode : Byte)
+        @keymap[keycode] = true
+    end
+
+    private def clear_keymap
+        @keymap.map! { |_| false }
     end
 
     private def draw_sprites
         (0...DISPLAY_HEIGHT).each do |y|
             (0...DISPLAY_WIDTH).each do |x|
-                if @video_memory.get(x, y)
-                    pixel = SF::RectangleShape.new SF.vector2(DISPLAY_SCALE, DISPLAY_SCALE)
-                    pixel.position = SF.vector2 x * DISPLAY_SCALE, y * DISPLAY_SCALE
+                if @video_memory[y][x]
+                    pixel = SF::RectangleShape.new SF.vector2(@scale, @scale)
+                    pixel.position = SF.vector2 x * @scale, y * @scale
                     @window.draw pixel
                 end
             end

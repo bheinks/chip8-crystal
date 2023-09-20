@@ -7,8 +7,8 @@ alias Word = UInt16
 ROM_ADDRESS = 0x200
 MEMORY_SIZE = 4096
 
-# Audio
 INT16_MAX = (((2 ** 16) / 2) - 1).to_i16
+UINT8_MAX = 2 ** 8
 SAMPLE_RATE = 44100
 CHANNEL_COUNT = 1
 

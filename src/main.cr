@@ -3,8 +3,8 @@ require "option_parser"
 require "./chip8"
 require "./constants"
 
-scale = 1
-delay = 3.0
+scale = 30
+delay = 0.0
 file = ""
 
 parser = OptionParser.parse do |parser|
@@ -12,7 +12,7 @@ parser = OptionParser.parse do |parser|
 
     parser.on "file", "ROM file" {}
 
-    parser.on "-s scale", "--scale=scale", "Window scale" do |_scale| 
+    parser.on "-s scale", "--scale=scale", "Window scale (default: #{scale})" do |_scale| 
         begin
             scale = _scale.to_i
         rescue ArgumentError
@@ -21,7 +21,7 @@ parser = OptionParser.parse do |parser|
         end
     end
 
-    parser.on "-d delay", "--delay=delay", "Instruction delay" do |_delay|
+    parser.on "-d delay", "--delay=delay", "Instruction delay (default: #{delay})" do |_delay|
         begin
             delay = _delay.to_f
         rescue ArgumentError
