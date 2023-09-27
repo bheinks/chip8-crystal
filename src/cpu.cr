@@ -45,6 +45,7 @@ class Cpu
             return
         end
 
+        carry : Byte = 0
         case opcode.first
         when 0x0
             case opcode.fourth
@@ -93,48 +94,48 @@ class Cpu
                 @V[opcode.second] ^= @V[opcode.third]
             when 0x4 # Vx += Vy
                 sum = @V[opcode.second].to_u16 + @V[opcode.third].to_u16
+                carry = 0
 
                 # Check for overflow
-                if sum > UINT8_MAX
+                if sum >= UINT8_MAX
                     sum -= UINT8_MAX
-                    @V[0xF] = 1
-                else
-                    @V[0xF] = 0
+                    carry = 1
                 end
 
                 @V[opcode.second] = sum.to_u8
+                @V[0xF] = carry
             when 0x5 # Vx -= Vy
-                # Subtract registers as Int16 so as to avoid OverflowError
                 difference = @V[opcode.second].to_i16 - @V[opcode.third].to_i16
+                carry = 1
 
                 # Check for underflow
                 if difference < 0
                     difference += UINT8_MAX
-                    @V[0xF] = 0
-                else
-                    @V[0xF] = 1
+                    carry = 0
                 end
 
                 @V[opcode.second] = difference.to_u8
+                @V[0xF] = carry
             when 0x6 # Vx >>= Vy
-                @V[0xF] = @V[opcode.second] & 0x1
+                carry = @V[opcode.second] & 0x1
                 @V[opcode.second] >>= 1
+                @V[0xF] = carry
             when 0x7 # Vx = Vy - Vx
-                # Subtract registers as Int16 so as to avoid OverflowError
                 difference = @V[opcode.third].to_i16 - @V[opcode.second].to_i16
+                carry = 1
 
                 # Check for underflow
                 if difference < 0
                     difference += UINT8_MAX
-                    @V[0xF] = 0
-                else
-                    @V[0xF] = 1
+                    carry = 0
                 end
 
                 @V[opcode.second] = difference.to_u8
+                @V[0xF] = carry
             when 0xE # Vx <<= Vy
-                @V[0xF] = (@V[opcode.second] & 0x80) >> 7
+                carry = (@V[opcode.second] & 0x80) >> 7
                 @V[opcode.second] <<= 1
+                @V[0xF] = carry
             end
         when 0x9 # if Vx != Vy
             if @V[opcode.second] != @V[opcode.third]
