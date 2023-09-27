@@ -35,7 +35,7 @@ class Chip8
             process_events
             @cpu.cycle
             clear_keymap
-            
+
             # Update window
             @window.clear SF::Color::Black
             draw_sprites

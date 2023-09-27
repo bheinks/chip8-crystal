@@ -59,15 +59,15 @@ class Cpu
             @stack.push @PC
             @PC = opcode.value & 0x0FFF
         when 0x3 # if Vx == NN
-            if @V[opcode.second] == (opcode.value & 0x00FF) && @PC < @memory.size + 1
+            if @V[opcode.second] == (opcode.value & 0x00FF)
                 @PC += 2
             end
         when 0x4 # if Vx != NN
-            if @V[opcode.second] != (opcode.value & 0x00FF) && @PC < @memory.size + 1
+            if @V[opcode.second] != (opcode.value & 0x00FF)
                 @PC += 2
             end
         when 0x5 # if Vx == Vy
-            if @V[opcode.second] == @V[opcode.third] && @PC < @memory.size + 1
+            if @V[opcode.second] == @V[opcode.third]
                 @PC += 2
             end
         when 0x6 # Vx = NN
@@ -76,7 +76,7 @@ class Cpu
             sum = @V[opcode.second].to_u16 + (opcode.value & 0x00FF).to_u16
 
             # Check for overflow
-            if sum > UINT8_MAX
+            if sum >= UINT8_MAX
                 sum -= UINT8_MAX
             end
 
@@ -137,7 +137,7 @@ class Cpu
                 @V[opcode.second] <<= 1
             end
         when 0x9 # if Vx != Vy
-            if @V[opcode.second] != @V[opcode.third] && @PC < @memory.size + 1
+            if @V[opcode.second] != @V[opcode.third]
                 @PC += 2
             end
         when 0xA # I = NNN
@@ -151,11 +151,11 @@ class Cpu
         when 0xE
             case opcode.value & 0x00FF
             when 0x9E # if (key() == Vx)
-                if @keymap[@V[opcode.second]] && @PC < @memory.size + 1
+                if @keymap[@V[opcode.second]]
                     @PC += 2
                 end
             when 0xA1 # if (key() != Vx)
-                if !@keymap[@V[opcode.second]] && @PC < @memory.size + 1
+                if !@keymap[@V[opcode.second]]
                     @PC += 2
                 end
             end
@@ -164,7 +164,7 @@ class Cpu
             when 0x07 # Vx = get_delay()
                 @V[opcode.second] = @delay_timer
             when 0x0A # Vx = get_key()
-                key = @keymap.index { |k| true }
+                key = @keymap.index { |k| k }
                 if key.nil?
                     @PC -= 2
                 else
@@ -214,7 +214,7 @@ class Cpu
                 y_index = (y + row) % DISPLAY_HEIGHT
                 x_index = (x + col) % DISPLAY_WIDTH
 
-                sprite_pixel = (sprite & (0x80 >> col)) > 0 ? true : false
+                sprite_pixel = (sprite & (0x80 >> col)) > 0
                 screen_pixel = @video_memory[y_index][x_index]
                 if sprite_pixel
                     if screen_pixel
