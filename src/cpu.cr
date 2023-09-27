@@ -14,10 +14,10 @@ class Cpu
     property sound_timer = 0_u8
     property delay_timer = 0_u8
 
-    def initialize(memory : Array(Byte), video_memory : Array(Array(Bool)), keymap : Array(Bool))
+    def initialize(memory : Array(Byte), video_memory : Array(Array(Bool)), keypad : Array(Bool))
         @memory = memory
         @video_memory = video_memory
-        @keymap = keymap
+        @keypad = keypad
         @stack = Array(Word).new
         @PC = 0x200_u16             # Program Counter
         @I = 0_u16                  # Index register
@@ -152,11 +152,11 @@ class Cpu
         when 0xE
             case opcode.value & 0x00FF
             when 0x9E # if (key() == Vx)
-                if @keymap[@V[opcode.second]]
+                if @keypad[@V[opcode.second]]
                     @PC += 2
                 end
             when 0xA1 # if (key() != Vx)
-                if !@keymap[@V[opcode.second]]
+                if !@keypad[@V[opcode.second]]
                     @PC += 2
                 end
             end
@@ -165,7 +165,7 @@ class Cpu
             when 0x07 # Vx = get_delay()
                 @V[opcode.second] = @delay_timer
             when 0x0A # Vx = get_key()
-                key = @keymap.index { |k| k }
+                key = @keypad.index { |k| k }
                 if key.nil?
                     @PC -= 2
                 else

@@ -11,8 +11,8 @@ class Chip8
         @delay = delay.milliseconds
         @memory = Array(Byte).new MEMORY_SIZE, 0_u8
         @video_memory = Array(Array(Bool)).new(DISPLAY_HEIGHT) { Array.new DISPLAY_WIDTH, false }
-        @keymap = Array(Bool).new 16, false
-        @cpu = Cpu.new @memory, @video_memory, @keymap
+        @keypad = Array(Bool).new 16, false
+        @cpu = Cpu.new @memory, @video_memory, @keypad
         @stream = Sound::Stream.new CHANNEL_COUNT, SAMPLE_RATE, Waveform::Sine, Note::A
         @window = SF::RenderWindow.new SF::VideoMode.new(DISPLAY_WIDTH * @scale, DISPLAY_HEIGHT * @scale), NAME
         @window.framerate_limit = 700
@@ -31,10 +31,11 @@ class Chip8
     end
 
     def start
+        clock = SF::Clock.new
+
         while @window.open?
             process_events
             @cpu.cycle
-            clear_keymap
 
             # Update window
             @window.clear SF::Color::Black
@@ -55,6 +56,9 @@ class Chip8
             if @cpu.delay_timer > 0
                 @cpu.delay_timer -= 1
             end
+
+            #clear_keypad
+            @window.title = "#{NAME} - #{(1.0 / clock.restart.as_seconds).round}"
         end
     end
 
@@ -64,50 +68,23 @@ class Chip8
             when SF::Event::Closed
                 @window.close
             when SF::Event::KeyPressed
-                case event.code
-                when .num1?
-                    key_pressed(0)
-                when .num2?
-                    key_pressed(0x1)
-                when .num3?
-                    key_pressed(0x2)
-                when .num4?
-                    key_pressed(0x3)
-                when .q?
-                    key_pressed(0x4)
-                when .w?
-                    key_pressed(0x5)
-                when .e?
-                    key_pressed(0x6)
-                when .r?
-                    key_pressed(0x7)
-                when .a?
-                    key_pressed(0x8)
-                when .s?
-                    key_pressed(0x9)
-                when .d?
-                    key_pressed(0xA)
-                when .f?
-                    key_pressed(0xB)
-                when .z?
-                    key_pressed(0xC)
-                when .x?
-                    key_pressed(0xD)
-                when .c?
-                    key_pressed(0xE)
-                when .v?
-                    key_pressed(0xF)
+                keycode = KEYPAD_MAP[event.code]?
+
+                if keycode
+                    @keypad[keycode] = true
+                end
+            when SF::Event::KeyReleased
+                keycode = KEYPAD_MAP[event.code]?
+
+                if keycode
+                    @keypad[keycode] = false
                 end
             end
         end
     end
 
-    private def key_pressed(keycode : Byte)
-        @keymap[keycode] = true
-    end
-
-    private def clear_keymap
-        @keymap.map! { |_| false }
+    private def clear_keypad
+        @keypad.map! { |_| false }
     end
 
     private def draw_sprites

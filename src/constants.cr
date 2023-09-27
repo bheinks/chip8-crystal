@@ -56,3 +56,22 @@ FONT = [
     0xF0, 0x80, 0xF0, 0x80, 0xF0, # E
     0xF0, 0x80, 0xF0, 0x80, 0x80  # F
 ] of Byte
+
+KEYPAD_MAP = {
+    SF::Keyboard::Num1 => 0x1,
+    SF::Keyboard::Num2 => 0x2,
+    SF::Keyboard::Num3 => 0x3,
+    SF::Keyboard::Num4 => 0xC,
+    SF::Keyboard::Q => 0x4,
+    SF::Keyboard::W => 0x5,
+    SF::Keyboard::E => 0x6,
+    SF::Keyboard::R => 0xD,
+    SF::Keyboard::A => 0x7,
+    SF::Keyboard::S => 0x8,
+    SF::Keyboard::D => 0x9,
+    SF::Keyboard::F => 0xE,
+    SF::Keyboard::Z => 0xA,
+    SF::Keyboard::X => 0x0,
+    SF::Keyboard::C => 0xB,
+    SF::Keyboard::V => 0xF
+}
